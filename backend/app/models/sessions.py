@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime
 from typing import NotRequired, TypedDict, cast
 
@@ -140,3 +142,5 @@ class GameState(BaseModel):
     conversation: list[ConversationEntry] = Field(
         default_factory=lambda: cast(list[ConversationEntry], [])
     )
+    pipeline_state: dict | None = None  # Will be PipelineState dict when squad active
+    squad_queue: list[dict] = Field(default_factory=list)

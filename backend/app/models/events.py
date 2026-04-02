@@ -76,6 +76,14 @@ class EventData(BaseModel):
     background_task_summary: str | None = None
     # Task list override (from CLAUDE_CODE_TASK_LIST_ID env var)
     task_list_id: str | None = None
+    # Squad-related fields
+    squad_id: str | None = None
+    squad_agent_id: str | None = None
+    display_name: str | None = None
+    sprite_key: str | None = None
+    agent_color: str | None = None
+    pipeline_step: str | None = None
+    pipeline_step_name: str | None = None
 
 
 class Event(BaseModel):
