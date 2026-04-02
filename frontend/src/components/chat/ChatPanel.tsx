@@ -62,32 +62,35 @@ export function ChatPanel() {
         });
         const data = await res.json();
 
-        // Add agent reply
-        if (data.reply) {
+        // Show explanation from router
+        if (data.explanation) {
           addMessage({
             id: makeId(),
             role: "agent",
-            text: data.reply,
-            agentName: data.agentName,
-            agentIcon: data.agentIcon,
-            agentColor: data.agentColor,
+            text: data.explanation,
+            agentName: "SocialForge",
+            agentIcon: "🤖",
+            agentColor: "#E94560",
             timestamp: Date.now(),
           });
         }
 
-        // Auto-start squad if confidence is high
-        if (data.autoStart && data.squadCode) {
+        // Notify if auto-started
+        if (data.auto_started && data.squad_code) {
           addMessage({
             id: makeId(),
             role: "system",
-            text: `Iniciando squad automaticamente: ${data.squadCode}`,
+            text: `Squad iniciado! Acompanhe o progresso no escritório.`,
             timestamp: Date.now(),
           });
-        }
-
-        // Update queue if returned
-        if (data.queue) {
-          setQueue(data.queue);
+        } else if (data.squad_code && !data.auto_started) {
+          // Squad identified but not auto-started (no active yet or medium confidence)
+          addMessage({
+            id: makeId(),
+            role: "system",
+            text: `Squad identificado: ${data.squad_code}. Clique no card acima para iniciar.`,
+            timestamp: Date.now(),
+          });
         }
       } catch {
         addMessage({
@@ -105,35 +108,83 @@ export function ChatPanel() {
 
   // Handle squad card click — pre-fill a message
   const handleSquadClick = useCallback(
-    (code: string) => {
+    async (code: string) => {
       const squad = squads.find((s) => s.code === code);
       if (!squad) return;
-      handleSend(`Iniciar squad: ${squad.name}`);
+
+      addMessage({
+        id: makeId(),
+        role: "user",
+        text: `Iniciar: ${squad.name}`,
+        timestamp: Date.now(),
+      });
+      setLoading(true);
+
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/squads/start`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ squad_code: code }),
+        });
+        const data = await res.json();
+        addMessage({
+          id: makeId(),
+          role: "agent",
+          text: data.status === "started"
+            ? `Squad ${data.squad_name} iniciado! Os agentes estão entrando no escritório...`
+            : `Squad ${data.squad_name} adicionado à fila (posição ${data.queue_position}).`,
+          agentName: "SocialForge",
+          agentIcon: "🤖",
+          agentColor: "#E94560",
+          timestamp: Date.now(),
+        });
+      } catch {
+        addMessage({
+          id: makeId(),
+          role: "system",
+          text: "Erro ao iniciar squad.",
+          timestamp: Date.now(),
+        });
+      } finally {
+        setLoading(false);
+      }
     },
-    [squads, handleSend],
+    [squads, addMessage, setLoading],
   );
 
   // Checkpoint handlers
   const handleApprove = useCallback(
     (checkpointStepId: string) => {
-      fetch(`${API_BASE}/api/v1/squads/checkpoint/approve`, {
+      fetch(`${API_BASE}/api/v1/squads/approve`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ stepId: checkpointStepId }),
+        body: JSON.stringify({ approved: true }),
       }).catch(() => {});
+      addMessage({
+        id: makeId(),
+        role: "system",
+        text: "✅ Aprovado! Continuando pipeline...",
+        timestamp: Date.now(),
+      });
     },
-    [],
+    [addMessage],
   );
 
   const handleAdjust = useCallback(
     (checkpointStepId: string, feedback: string) => {
-      fetch(`${API_BASE}/api/v1/squads/checkpoint/adjust`, {
+      fetch(`${API_BASE}/api/v1/squads/approve`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ stepId: checkpointStepId, feedback }),
+        body: JSON.stringify({ approved: false, feedback }),
       }).catch(() => {});
+      addMessage({
+        id: makeId(),
+        role: "user",
+        text: `Ajuste solicitado: ${feedback}`,
+        timestamp: Date.now(),
+      });
     },
-    [],
+    [addMessage],
   );
 
   const handleQueueRemove = useCallback(

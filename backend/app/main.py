@@ -42,14 +42,32 @@ async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
     from app.core.squad_loader import SquadLoader
     from app.core.chat_router import ChatRouter
     from app.core.queue_manager import QueueManager
-    from app.api.routes.squads import router as squad_router, init_squad_services
+    from app.core.squad_engine import SquadEngine
+    from app.core.agent_registry import AgentRegistry
+    from app.core.event_processor import event_processor
+    from app.api.routes.squads import init_squad_services
 
     squads_dir = Path(__file__).resolve().parents[2] / "socialforge" / "squads"
     squad_loader = SquadLoader(squads_dir=squads_dir)
     squad_loader.load_all()
     chat_router_instance = ChatRouter(squad_loader.list_squads())
     queue_manager = QueueManager()
-    init_squad_services(squad_loader, chat_router_instance, queue_manager)
+    registry = AgentRegistry()
+
+    async def emit_event(event):
+        await event_processor.process_event(event)
+
+    async def broadcast_state(state):
+        pass  # Broadcasting handled in route handlers
+
+    squad_engine = SquadEngine(
+        loader=squad_loader,
+        registry=registry,
+        queue=queue_manager,
+        emit_event=emit_event,
+        broadcast_state=broadcast_state,
+    )
+    init_squad_services(squad_loader, chat_router_instance, queue_manager, squad_engine)
 
     yield
 
