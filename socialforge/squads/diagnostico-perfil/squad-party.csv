@@ -1,0 +1,4 @@
+name,path,icon,title
+Sherlock Social,./agents/investigador.agent.md,🕵️,Investigador de Perfis
+Nina Números,./agents/analista.agent.md,📊,Analista de Métricas
+Max Plano,./agents/estrategista-perfil.agent.md,🎯,Estrategista de Plano de Ação

@@ -1,0 +1,61 @@
+name: "Fábrica de Conteúdo"
+code: "fabrica-de-conteudo"
+description: >
+  Transforma o briefing de qualquer cliente em um pacote completo de conteúdo
+  estratégico: calendário editorial mensal com datas comemorativas pesquisadas,
+  roteiros de stories pra 7 dias e copy estratégico pra cada post (ganchos,
+  carrosséis, roteiros de Reels). Do briefing à entrega em um único pipeline.
+icon: "🔥"
+version: "1.0.0"
+created: "2026-04-02"
+mode: "alta-performance"
+
+company: "_socialforge/_memory/company.md"
+preferences: "_socialforge/_memory/preferences.md"
+memory: "_memory/memories.md"
+
+target_audience: "Clientes de social media de qualquer nicho"
+platform: "Instagram Feed + Stories"
+format: "instagram-feed"
+performance_mode: "alta-performance"
+
+skills:
+  - web_search
+  - web_fetch
+
+data:
+  - pipeline/data/briefing-coleta.md
+  - pipeline/data/comportamentos-editoriais.md
+  - pipeline/data/formulas-gancho.md
+  - pipeline/data/distribuicao-semanal.md
+  - pipeline/data/datas-por-nicho.md
+  - pipeline/data/filtros-qualidade.md
+  - pipeline/data/metodo-stories.md
+  - pipeline/data/anti-patterns.md
+  - pipeline/data/tone-of-voice.md
+
+agents:
+  - id: estrategista
+    name: "Sol Estratégia"
+    icon: "🧠"
+
+  - id: pesquisador
+    name: "Luna Pesquisa"
+    icon: "🔍"
+
+  - id: copywriter
+    name: "Davi Copy"
+    icon: "✍️"
+
+  - id: roteirista-stories
+    name: "Bia Stories"
+    icon: "📱"
+
+  - id: revisor
+    name: "Léo Revisão"
+    icon: "✅"
+
+pipeline:
+  entry: pipeline/pipeline.yaml
+
+output_dir: output/

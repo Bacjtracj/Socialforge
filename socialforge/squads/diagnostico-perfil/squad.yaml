@@ -1,0 +1,49 @@
+name: "Diagnóstico de Perfil"
+code: "diagnostico-perfil"
+description: >
+  Analisa perfis de Instagram e TikTok em profundidade: investiga concorrentes,
+  lê métricas com interpretação comportamental e gera relatório HTML interativo
+  com diagnóstico, gargalo principal e plano de ação. Do print ao plano estratégico
+  em um único pipeline.
+icon: "🔬"
+version: "1.0.0"
+created: "2026-04-02"
+mode: "alta-performance"
+
+company: "_socialforge/_memory/company.md"
+preferences: "_socialforge/_memory/preferences.md"
+memory: "_memory/memories.md"
+
+target_audience: "Social medias e agências que precisam analisar perfis e métricas"
+platform: "Instagram + TikTok"
+format: "analysis"
+performance_mode: "alta-performance"
+
+skills:
+  - web_search
+  - web_fetch
+
+data:
+  - pipeline/data/benchmarks-engajamento.md
+  - pipeline/data/matriz-comportamental.md
+  - pipeline/data/estrutura-relatorio-html.md
+  - pipeline/data/modelo-investigacao.md
+  - pipeline/data/anti-patterns-analise.md
+
+agents:
+  - id: investigador
+    name: "Sherlock Social"
+    icon: "🕵️"
+
+  - id: analista
+    name: "Nina Números"
+    icon: "📊"
+
+  - id: estrategista-perfil
+    name: "Max Plano"
+    icon: "🎯"
+
+pipeline:
+  entry: pipeline/pipeline.yaml
+
+output_dir: output/

@@ -1,0 +1,49 @@
+name: "Máquina de Clientes"
+code: "maquina-clientes"
+description: >
+  Cuida de tudo que envolve a gestão comercial e operacional de clientes:
+  analisa propostas e precifica serviços com base no mercado brasileiro,
+  revisa contratos de agência identificando cláusulas ausentes e riscos,
+  e gera o manual de onboarding personalizado pro cliente. Da proposta
+  à entrada do cliente em um único pipeline.
+icon: "💼"
+version: "1.0.0"
+created: "2026-04-02"
+mode: "alta-performance"
+
+company: "_socialforge/_memory/company.md"
+preferences: "_socialforge/_memory/preferences.md"
+memory: "_memory/memories.md"
+
+target_audience: "Social medias, agências e freelancers que precisam precificar, contratar e onboardar clientes"
+platform: "Operacional"
+format: "analysis"
+performance_mode: "alta-performance"
+
+skills:
+  - web_search
+
+data:
+  - pipeline/data/tabela-precos-mercado.md
+  - pipeline/data/checklist-clausulas.md
+  - pipeline/data/modelo-onboarding.md
+  - pipeline/data/servicos-por-tipo.md
+  - pipeline/data/anti-patterns-comercial.md
+
+agents:
+  - id: consultor
+    name: "Rafa Preço"
+    icon: "💰"
+
+  - id: juridico
+    name: "Clara Contrato"
+    icon: "📋"
+
+  - id: onboarding
+    name: "Dani Welcome"
+    icon: "🤝"
+
+pipeline:
+  entry: pipeline/pipeline.yaml
+
+output_dir: output/

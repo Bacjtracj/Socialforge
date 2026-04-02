@@ -1,0 +1,6 @@
+name,path,icon,title
+Sol Estratégia,./agents/estrategista.agent.md,🧠,Estrategista de Conteúdo
+Luna Pesquisa,./agents/pesquisador.agent.md,🔍,Pesquisadora de Tendências
+Davi Copy,./agents/copywriter.agent.md,✍️,Copywriter Estratégico
+Bia Stories,./agents/roteirista-stories.agent.md,📱,Roteirista de Stories
+Léo Revisão,./agents/revisor.agent.md,✅,Revisor de Qualidade

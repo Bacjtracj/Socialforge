@@ -1,0 +1,109 @@
+name: "Pipeline — Diagnóstico de Perfil"
+version: "1.0.0"
+created: "2026-04-02"
+squad: "diagnostico-perfil"
+
+description: >
+  Pipeline que investiga perfis concorrentes, analisa métricas com leitura
+  comportamental e entrega relatório HTML interativo com plano de ação.
+  Funciona com prints de métricas, URLs de concorrentes, ou ambos.
+
+mode: "alta-performance"
+
+steps:
+  - id: step-01
+    name: "Entrada de Dados"
+    type: checkpoint
+    file: steps/step-01-entrada.md
+
+  - id: step-02
+    name: "Investigação de Concorrentes"
+    type: agent
+    agent: investigador
+    tasks:
+      - coletar-dados-perfil
+      - analisar-conteudo
+      - mapear-estrategia
+    file: steps/step-02-investigacao.md
+    depends_on: step-01
+
+  - id: step-03
+    name: "Aprovação da Investigação"
+    type: checkpoint
+    file: steps/step-03-aprovar-investigacao.md
+    depends_on: step-02
+
+  - id: step-04
+    name: "Análise de Métricas"
+    type: agent
+    agent: analista
+    tasks:
+      - calcular-variacoes
+      - analisar-eficiencia
+      - diagnosticar-conversao
+      - identificar-gargalo
+    file: steps/step-04-analise-metricas.md
+    depends_on: step-03
+
+  - id: step-05
+    name: "Análise Comportamental"
+    type: agent
+    agent: analista
+    tasks:
+      - leitura-padroes
+      - diagnostico-posicionamento
+    file: steps/step-05-analise-comportamental.md
+    depends_on: step-04
+
+  - id: step-06
+    name: "Aprovação do Diagnóstico"
+    type: checkpoint
+    file: steps/step-06-aprovar-diagnostico.md
+    depends_on: step-05
+
+  - id: step-07
+    name: "Plano de Ação Estratégico"
+    type: agent
+    agent: estrategista-perfil
+    tasks:
+      - plano-7-dias
+      - plano-30-dias
+      - testes-estrategicos
+    file: steps/step-07-plano-acao.md
+    depends_on: step-06
+
+  - id: step-08
+    name: "Aprovação do Plano"
+    type: checkpoint
+    file: steps/step-08-aprovar-plano.md
+    depends_on: step-07
+
+  - id: step-09
+    name: "Geração do Relatório HTML"
+    type: agent
+    agent: analista
+    tasks:
+      - gerar-relatorio-html
+    file: steps/step-09-relatorio-html.md
+    depends_on: step-08
+
+  - id: step-10
+    name: "Entrega Final"
+    type: checkpoint
+    file: steps/step-10-entrega.md
+    depends_on: step-09
+
+checkpoints:
+  - step-01
+  - step-03
+  - step-06
+  - step-08
+  - step-10
+
+output:
+  artifacts:
+    - output/investigacao-concorrentes.md
+    - output/analise-metricas.md
+    - output/diagnostico-comportamental.md
+    - output/plano-acao.md
+    - output/relatorio-perfil.html

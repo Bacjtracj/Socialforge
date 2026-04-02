@@ -1,0 +1,126 @@
+name: "Pipeline — Fábrica de Conteúdo"
+version: "1.0.0"
+created: "2026-04-02"
+squad: "fabrica-de-conteudo"
+
+description: >
+  Pipeline completo que transforma briefing de cliente em calendário editorial,
+  copy estratégico e roteiros de stories. 6 checkpoints garantem aprovação
+  humana em cada decisão crítica.
+
+mode: "alta-performance"
+
+steps:
+  - id: step-01
+    name: "Briefing do Cliente"
+    type: checkpoint
+    file: steps/step-01-briefing.md
+
+  - id: step-02
+    name: "Pesquisa de Datas e Tendências"
+    type: agent
+    agent: pesquisador
+    tasks:
+      - pesquisar-datas-nicho
+      - identificar-tendencias
+    file: steps/step-02-pesquisa-datas.md
+    depends_on: step-01
+
+  - id: step-03
+    name: "Aprovação das Datas e Tendências"
+    type: checkpoint
+    file: steps/step-03-aprovar-datas.md
+    depends_on: step-02
+
+  - id: step-04
+    name: "Macroplano e Campanhas"
+    type: agent
+    agent: estrategista
+    tasks:
+      - criar-macroplano
+      - sugerir-campanhas
+    file: steps/step-04-macroplano.md
+    depends_on: step-03
+
+  - id: step-05
+    name: "Aprovação do Macroplano"
+    type: checkpoint
+    file: steps/step-05-aprovar-macroplano.md
+    depends_on: step-04
+
+  - id: step-06
+    name: "Linha Editorial e Distribuição"
+    type: agent
+    agent: estrategista
+    tasks:
+      - definir-linha-editorial
+      - distribuir-semanas
+    file: steps/step-06-linha-editorial.md
+    depends_on: step-05
+
+  - id: step-07
+    name: "Calendário Completo com Copy"
+    type: agent
+    agent: copywriter
+    tasks:
+      - criar-ganchos
+      - escrever-legendas
+      - estruturar-carrosseis
+      - roteirizar-reels
+    file: steps/step-07-calendario-copy.md
+    depends_on: step-06
+
+  - id: step-08
+    name: "Aprovação do Calendário e Copy"
+    type: checkpoint
+    file: steps/step-08-aprovar-calendario.md
+    depends_on: step-07
+
+  - id: step-09
+    name: "Roteiros de Stories da Semana"
+    type: agent
+    agent: roteirista-stories
+    tasks:
+      - criar-roteiro-semanal
+    file: steps/step-09-roteiro-stories.md
+    depends_on: step-08
+
+  - id: step-10
+    name: "Aprovação dos Stories"
+    type: checkpoint
+    file: steps/step-10-aprovar-stories.md
+    depends_on: step-09
+
+  - id: step-11
+    name: "Revisão de Qualidade"
+    type: agent
+    agent: revisor
+    tasks:
+      - revisar-filtros
+      - pontuar-qualidade
+    file: steps/step-11-revisao.md
+    depends_on: step-10
+
+  - id: step-12
+    name: "Entrega Final"
+    type: checkpoint
+    file: steps/step-12-entrega.md
+    depends_on: step-11
+
+checkpoints:
+  - step-01
+  - step-03
+  - step-05
+  - step-08
+  - step-10
+  - step-12
+
+output:
+  artifacts:
+    - output/briefing-cliente.yaml
+    - output/datas-comemorativas.md
+    - output/macroplano.md
+    - output/calendario-editorial.md
+    - output/copy-completo.md
+    - output/roteiro-stories.md
+    - output/revisao-final.md

@@ -1,0 +1,102 @@
+name: "Pipeline — Máquina de Clientes"
+version: "1.0.0"
+created: "2026-04-02"
+squad: "maquina-clientes"
+
+description: >
+  Pipeline que cobre todo o ciclo comercial: precificar serviços, analisar
+  propostas recebidas, revisar contratos antes de enviar e gerar manual
+  de onboarding personalizado. O usuário pode entrar em qualquer ponto
+  do pipeline dependendo do que precisa.
+
+mode: "alta-performance"
+
+steps:
+  - id: step-01
+    name: "O que Você Precisa Hoje?"
+    type: checkpoint
+    file: steps/step-01-entrada.md
+
+  - id: step-02
+    name: "Análise de Precificação"
+    type: agent
+    agent: consultor
+    tasks:
+      - analisar-escopo
+      - calcular-valor-hora
+      - sugerir-faixas
+      - montar-proposta
+    file: steps/step-02-precificacao.md
+    depends_on: step-01
+
+  - id: step-03
+    name: "Aprovação da Precificação"
+    type: checkpoint
+    file: steps/step-03-aprovar-preco.md
+    depends_on: step-02
+
+  - id: step-04
+    name: "Revisão de Contrato"
+    type: agent
+    agent: juridico
+    tasks:
+      - ler-contrato
+      - cruzar-checklist
+      - classificar-clausulas
+      - gerar-relatorio
+    file: steps/step-04-revisao-contrato.md
+    depends_on: step-03
+
+  - id: step-05
+    name: "Aprovação do Contrato"
+    type: checkpoint
+    file: steps/step-05-aprovar-contrato.md
+    depends_on: step-04
+
+  - id: step-06
+    name: "Redação do Contrato Corrigido"
+    type: agent
+    agent: juridico
+    tasks:
+      - redigir-contrato-corrigido
+    file: steps/step-06-contrato-corrigido.md
+    depends_on: step-05
+
+  - id: step-07
+    name: "Geração do Manual de Onboarding"
+    type: agent
+    agent: onboarding
+    tasks:
+      - coletar-dados-cliente
+      - gerar-manual-html
+      - gerar-manual-markdown
+    file: steps/step-07-onboarding.md
+    depends_on: step-06
+
+  - id: step-08
+    name: "Aprovação do Manual"
+    type: checkpoint
+    file: steps/step-08-aprovar-manual.md
+    depends_on: step-07
+
+  - id: step-09
+    name: "Entrega Final"
+    type: checkpoint
+    file: steps/step-09-entrega.md
+    depends_on: step-08
+
+checkpoints:
+  - step-01
+  - step-03
+  - step-05
+  - step-08
+  - step-09
+
+output:
+  artifacts:
+    - output/analise-precificacao.md
+    - output/proposta-comercial.md
+    - output/relatorio-contrato.md
+    - output/contrato-corrigido.md
+    - output/manual-cliente.html
+    - output/manual-cliente.md
