@@ -464,7 +464,9 @@ export function useWebSocketEvents({
       reconnectTimeoutRef.current = null;
     }
 
-    const wsUrl = `ws://localhost:8000/ws/${sessionId}`;
+    const wsProtocol = typeof window !== "undefined" && window.location.protocol === "https:" ? "wss:" : "ws:";
+    const wsHost = typeof window !== "undefined" ? window.location.host : "localhost:8000";
+    const wsUrl = `${wsProtocol}//${wsHost}/ws/${sessionId}`;
     const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
 

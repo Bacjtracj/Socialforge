@@ -127,7 +127,7 @@ export default function V2TestPage(): React.ReactNode {
   // One-time initialization effects
   // ------------------------------------------------------------------
   useEffect(() => {
-    fetch("http://localhost:8000/api/v1/status")
+    fetch("/api/v1/status")
       .then((res) => res.json())
       .then((data: { aiSummaryEnabled: boolean }) =>
         setAiSummaryEnabled(data.aiSummaryEnabled),
@@ -398,18 +398,16 @@ export default function V2TestPage(): React.ReactNode {
             </button>
           </div>
 
-          {mobileView === "chat" ? (
-            <div className="flex-grow border border-slate-800 rounded-lg overflow-hidden min-h-0">
-              <ChatPanel />
+          {/* Use CSS visibility to avoid PixiJS unmount/remount crashes */}
+          <div className={`flex-grow border border-slate-800 rounded-lg overflow-hidden min-h-0 ${mobileView !== "chat" ? "hidden" : ""}`}>
+            <ChatPanel />
+          </div>
+          <div className={`flex-grow flex flex-col gap-1.5 min-h-0 ${mobileView !== "office" ? "hidden" : ""}`}>
+            <div className="flex-[3] border border-slate-800 rounded-lg shadow-2xl bg-slate-900 overflow-hidden relative min-h-0">
+              <OfficeGame />
             </div>
-          ) : (
-            <>
-              <div className="flex-[3] border border-slate-800 rounded-lg shadow-2xl bg-slate-900 overflow-hidden relative min-h-0">
-                <OfficeGame />
-              </div>
-              <MobileAgentActivity agents={agents} boss={boss} />
-            </>
-          )}
+            <MobileAgentActivity agents={agents} boss={boss} />
+          </div>
         </div>
       ) : (
         <div className="flex-grow flex gap-2 overflow-hidden min-h-0">

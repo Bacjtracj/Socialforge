@@ -99,3 +99,4 @@ backend/static/
 PRD.md
 .claude/.cc2cc-session-id
 *.local.*
+.superpowers/

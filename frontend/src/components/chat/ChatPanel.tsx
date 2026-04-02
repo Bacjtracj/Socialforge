@@ -10,7 +10,7 @@ import { CheckpointMessage } from "./CheckpointMessage";
 import { QueueIndicator } from "./QueueIndicator";
 import { SquadCard } from "./SquadCard";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 
 // ============================================================================
 // HELPERS
