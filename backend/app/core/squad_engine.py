@@ -332,7 +332,65 @@ class SquadEngine:
         return "\n\n---\n\n".join(parts)
 
     async def _call_claude_api(self, prompt: str) -> str:
-        """Call the Anthropic AsyncAnthropic client with claude-sonnet-4-6."""
+        """Execute prompt via Claude Code CLI (uses existing subscription).
+
+        Falls back to Anthropic API if CLI is not available.
+        """
+        # Try Claude Code CLI first (uses your subscription, no extra cost)
+        try:
+            return await self._call_claude_cli(prompt)
+        except FileNotFoundError:
+            logger.info("Claude CLI not found, falling back to API")
+        except Exception as exc:
+            logger.warning("Claude CLI failed: %s, falling back to API", exc)
+
+        # Fallback to API if CLI unavailable and key is set
+        if self._api_key:
+            return await self._call_anthropic_api(prompt)
+
+        raise RuntimeError("Neither Claude CLI nor API key available")
+
+    async def _call_claude_cli(self, prompt: str) -> str:
+        """Call Claude Code CLI via subprocess."""
+        import shutil
+        import tempfile
+
+        claude_path = shutil.which("claude")
+        if not claude_path:
+            raise FileNotFoundError("claude CLI not found in PATH")
+
+        # Write prompt to temp file to avoid shell escaping issues
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False, encoding="utf-8") as f:
+            f.write(prompt)
+            prompt_file = f.name
+
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                claude_path, "-p", "--output-format", "text",
+                stdin=asyncio.subprocess.PIPE,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+
+            # Send prompt via stdin
+            with open(prompt_file, "rb") as f:
+                prompt_bytes = f.read()
+
+            stdout, stderr = await asyncio.wait_for(
+                proc.communicate(input=prompt_bytes),
+                timeout=300,  # 5 min timeout per agent step
+            )
+
+            if proc.returncode != 0:
+                error_msg = stderr.decode("utf-8", errors="replace").strip()
+                raise RuntimeError(f"Claude CLI exited with code {proc.returncode}: {error_msg}")
+
+            return stdout.decode("utf-8", errors="replace").strip()
+        finally:
+            Path(prompt_file).unlink(missing_ok=True)
+
+    async def _call_anthropic_api(self, prompt: str) -> str:
+        """Fallback: call Anthropic API directly (requires ANTHROPIC_API_KEY)."""
         import anthropic
 
         client = anthropic.AsyncAnthropic(api_key=self._api_key)
@@ -341,7 +399,6 @@ class SquadEngine:
             max_tokens=8192,
             messages=[{"role": "user", "content": prompt}],
         )
-        # Extract text content from response
         content = message.content
         if content and hasattr(content[0], "text"):
             return content[0].text
