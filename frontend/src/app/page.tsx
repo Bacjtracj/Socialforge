@@ -20,8 +20,9 @@ import {
   selectBoss,
 } from "@/stores/gameStore";
 import { useShallow } from "zustand/react/shallow";
-import { Menu, X } from "lucide-react";
+import { Menu, X, MessageSquare, Monitor } from "lucide-react";
 import { SessionSidebar } from "@/components/layout/SessionSidebar";
+import { ChatPanel } from "@/components/chat/ChatPanel";
 import { MobileDrawer } from "@/components/layout/MobileDrawer";
 import { MobileAgentActivity } from "@/components/layout/MobileAgentActivity";
 import { RightSidebar } from "@/components/layout/RightSidebar";
@@ -71,6 +72,7 @@ export default function V2TestPage(): React.ReactNode {
   const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileView, setMobileView] = useState<"chat" | "office">("chat");
   const [aiSummaryEnabled, setAiSummaryEnabled] = useState<boolean | null>(
     null,
   );
@@ -370,30 +372,72 @@ export default function V2TestPage(): React.ReactNode {
       ---------------------------------------------------------------- */}
       {isMobile ? (
         <div className="flex-grow flex flex-col gap-1.5 overflow-hidden min-h-0">
-          <div className="flex-[3] border border-slate-800 rounded-lg shadow-2xl bg-slate-900 overflow-hidden relative min-h-0">
-            <OfficeGame />
+          {/* Mobile view toggle */}
+          <div className="flex-shrink-0 flex gap-1 bg-slate-900 border border-slate-800 rounded-lg p-1">
+            <button
+              onClick={() => setMobileView("chat")}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                mobileView === "chat"
+                  ? "bg-slate-700 text-white"
+                  : "text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              <MessageSquare size={14} />
+              Chat
+            </button>
+            <button
+              onClick={() => setMobileView("office")}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                mobileView === "office"
+                  ? "bg-slate-700 text-white"
+                  : "text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              <Monitor size={14} />
+              Office
+            </button>
           </div>
-          <MobileAgentActivity agents={agents} boss={boss} />
+
+          {mobileView === "chat" ? (
+            <div className="flex-grow border border-slate-800 rounded-lg overflow-hidden min-h-0">
+              <ChatPanel />
+            </div>
+          ) : (
+            <>
+              <div className="flex-[3] border border-slate-800 rounded-lg shadow-2xl bg-slate-900 overflow-hidden relative min-h-0">
+                <OfficeGame />
+              </div>
+              <MobileAgentActivity agents={agents} boss={boss} />
+            </>
+          )}
         </div>
       ) : (
         <div className="flex-grow flex gap-2 overflow-hidden min-h-0">
-          <SessionSidebar
-            sessions={sessions}
-            sessionsLoading={sessionsLoading}
-            sessionId={sessionId}
-            isCollapsed={leftSidebarCollapsed}
-            onToggleCollapsed={() =>
-              setLeftSidebarCollapsed(!leftSidebarCollapsed)
-            }
-            onSessionSelect={handleSessionSelect}
-            onDeleteSession={setSessionPendingDelete}
-          />
-
-          <div className="flex-grow border border-slate-800 rounded-lg shadow-2xl bg-slate-900 overflow-hidden relative">
-            <OfficeGame />
+          {/* Chat panel — 40% width */}
+          <div className="w-[40%] flex-shrink-0 border border-slate-800 rounded-lg overflow-hidden">
+            <ChatPanel />
           </div>
 
-          <RightSidebar />
+          {/* Office + sidebars — 60% width */}
+          <div className="w-[60%] flex gap-2 overflow-hidden min-h-0">
+            <SessionSidebar
+              sessions={sessions}
+              sessionsLoading={sessionsLoading}
+              sessionId={sessionId}
+              isCollapsed={leftSidebarCollapsed}
+              onToggleCollapsed={() =>
+                setLeftSidebarCollapsed(!leftSidebarCollapsed)
+              }
+              onSessionSelect={handleSessionSelect}
+              onDeleteSession={setSessionPendingDelete}
+            />
+
+            <div className="flex-grow border border-slate-800 rounded-lg shadow-2xl bg-slate-900 overflow-hidden relative">
+              <OfficeGame />
+            </div>
+
+            <RightSidebar />
+          </div>
         </div>
       )}
     </main>

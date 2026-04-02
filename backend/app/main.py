@@ -38,6 +38,19 @@ async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
 
     git_service.start()
 
+    from pathlib import Path
+    from app.core.squad_loader import SquadLoader
+    from app.core.chat_router import ChatRouter
+    from app.core.queue_manager import QueueManager
+    from app.api.routes.squads import router as squad_router, init_squad_services
+
+    squads_dir = Path(__file__).resolve().parents[2] / "socialforge" / "squads"
+    squad_loader = SquadLoader(squads_dir=squads_dir)
+    squad_loader.load_all()
+    chat_router_instance = ChatRouter(squad_loader.list_squads())
+    queue_manager = QueueManager()
+    init_squad_services(squad_loader, chat_router_instance, queue_manager)
+
     yield
 
     await git_service.stop()
@@ -62,6 +75,9 @@ app.add_middleware(
 app.include_router(events.router, prefix=f"{settings.API_V1_STR}")
 app.include_router(preferences.router, prefix=f"{settings.API_V1_STR}")
 app.include_router(sessions.router, prefix=f"{settings.API_V1_STR}")
+
+from app.api.routes.squads import router as squad_router  # noqa: E402
+app.include_router(squad_router, prefix="/api/v1")
 
 
 @app.get("/health")

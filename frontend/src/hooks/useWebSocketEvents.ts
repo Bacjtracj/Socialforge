@@ -9,6 +9,8 @@
 
 import { useEffect, useRef, useCallback } from "react";
 import { useGameStore } from "@/stores/gameStore";
+import { useSquadStore } from "@/stores/squadStore";
+import { useChatStore } from "@/stores/chatStore";
 import { agentMachineService } from "@/machines/agentMachineService";
 import {
   getNextSpawnPosition,
@@ -393,6 +395,47 @@ export function useWebSocketEvents({
               }),
             );
             break;
+
+          case "squad_update": {
+            // Update pipeline state and queue
+            const squadStore = useSquadStore.getState();
+            if (message.data?.pipeline_state) {
+              squadStore.setPipelineState(message.data.pipeline_state);
+            }
+            if (message.data?.squad_queue) {
+              squadStore.setQueue(message.data.squad_queue);
+            }
+            break;
+          }
+
+          case "squad_checkpoint": {
+            // Add checkpoint message to chat
+            const chatStore = useChatStore.getState();
+            chatStore.addMessage({
+              id: "",
+              role: "checkpoint",
+              text: message.data?.content || "",
+              agentName: message.data?.step_name || "Checkpoint",
+              timestamp: Date.now(),
+              checkpointStepId: message.data?.step_id,
+            });
+            break;
+          }
+
+          case "squad_agent_message": {
+            // Add agent output message to chat
+            const chatStore = useChatStore.getState();
+            chatStore.addMessage({
+              id: "",
+              role: "agent",
+              text: message.data?.text || "",
+              agentName: message.data?.agent_name,
+              agentIcon: message.data?.agent_icon,
+              agentColor: message.data?.agent_color,
+              timestamp: Date.now(),
+            });
+            break;
+          }
         }
       } catch (error) {
         console.error("[WS] Failed to parse message:", error);
