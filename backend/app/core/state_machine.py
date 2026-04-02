@@ -746,7 +746,7 @@ class StateMachine:
         summary_service = get_summary_service()
         short_name = summary_service.generate_agent_name_fallback(name_source)
 
-        return Agent(
+        agent = Agent(
             id=agent_id,
             name=short_name,
             color=color,
@@ -756,6 +756,14 @@ class StateMachine:
             bubble=None,
             current_task=data.task_description,
         )
+
+        # Override with squad metadata if present
+        if data.display_name:
+            agent.name = data.display_name
+        if data.agent_color:
+            agent.color = data.agent_color
+
+        return agent
 
     def _parse_todo_write(self, event: Event) -> None:
         """Parse TodoWrite tool input and update the todo list state."""

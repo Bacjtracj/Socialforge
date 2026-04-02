@@ -38,6 +38,9 @@ export type { CoffeeModeProps } from "./CoffeeMode";
 export { HeatMapMode } from "./HeatMapMode";
 export type { HeatMapModeProps } from "./HeatMapMode";
 
+export { PipelineMode } from "./PipelineMode";
+export type { PipelineModeProps } from "./PipelineMode";
+
 export {
   MODE_INFO,
   WHITEBOARD_MODE_COUNT,

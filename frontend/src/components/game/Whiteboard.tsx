@@ -23,6 +23,7 @@ import { Graphics } from "pixi.js";
 import { useCallback, useEffect, useMemo, type ReactNode } from "react";
 import type { TodoItem, WhiteboardMode, Agent } from "@/types";
 import { useGameStore } from "@/stores/gameStore";
+import { useSquadStore } from "@/stores/squadStore";
 import { TodoListMode } from "./whiteboard/TodoListMode";
 import { RemoteWorkersMode } from "./whiteboard/RemoteWorkersMode";
 import { ToolPizzaMode } from "./whiteboard/ToolPizzaMode";
@@ -34,6 +35,7 @@ import { TimelineMode } from "./whiteboard/TimelineMode";
 import { NewsTickerMode } from "./whiteboard/NewsTickerMode";
 import { CoffeeMode } from "./whiteboard/CoffeeMode";
 import { HeatMapMode } from "./whiteboard/HeatMapMode";
+import { PipelineMode } from "./whiteboard/PipelineMode";
 import { MODE_INFO } from "./whiteboard/WhiteboardModeRegistry";
 
 // ============================================================================
@@ -109,10 +111,10 @@ function WhiteboardFrame({
 
       {/* Mode indicator dots */}
       <pixiContainer x={165} y={193}>
-        {Array.from({ length: 11 }).map((_, i) => (
+        {Array.from({ length: 12 }).map((_, i) => (
           <pixiGraphics
             key={i}
-            x={(i - 5) * 10}
+            x={(i - 5.5) * 10}
             draw={(g: Graphics) => {
               g.clear();
               g.circle(0, 0, i === mode ? 4 : 2);
@@ -143,6 +145,7 @@ export function Whiteboard({ todos }: WhiteboardProps): ReactNode {
   const setMode = useGameStore((s) => s.setWhiteboardMode);
   const agentsMap = useGameStore((s) => s.agents);
   const bossTask = useGameStore((s) => s.boss.currentTask);
+  const pipelineState = useSquadStore((s) => s.pipelineState);
 
   // Keyboard hotkeys: T = Todo List (0), B = Background Tasks (1), 0-9 = modes
   useEffect(() => {
@@ -194,6 +197,13 @@ export function Whiteboard({ todos }: WhiteboardProps): ReactNode {
     [agentsMap],
   );
 
+  // Auto-switch to pipeline mode when a pipeline becomes active
+  useEffect(() => {
+    if (pipelineState && pipelineState.status === "running") {
+      setMode(11);
+    }
+  }, [pipelineState?.status, pipelineState, setMode]);
+
   const handleClick = useCallback(() => {
     cycleMode();
   }, [cycleMode]);
@@ -223,6 +233,8 @@ export function Whiteboard({ todos }: WhiteboardProps): ReactNode {
         return <CoffeeMode data={whiteboardData} />;
       case 10:
         return <HeatMapMode data={whiteboardData} />;
+      case 11:
+        return <PipelineMode />;
       default:
         return <TodoListMode todos={todos} />;
     }

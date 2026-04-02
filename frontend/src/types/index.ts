@@ -82,7 +82,8 @@ export type WhiteboardMode =
   | 7 // Timeline
   | 8 // News Ticker
   | 9 // Coffee
-  | 10; // Heat Map
+  | 10 // Heat Map
+  | 11; // Pipeline
 
 /**
  * Shape of the optional event detail payload carried in WebSocket events.
