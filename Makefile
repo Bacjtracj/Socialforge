@@ -11,10 +11,25 @@ PKG_MGR := $(shell command -v bun >/dev/null 2>&1 && echo "bun" || echo "npm")
 PKG_INSTALL := $(shell command -v bun >/dev/null 2>&1 && echo "bun install" || echo "npm install")
 
 install:
-	cd backend && uv sync
+	uv python install 3.13 || true
+	cd backend && uv sync -p 3.13
 	cd frontend && $(PKG_INSTALL)
-	cd hooks && uv sync
-	cd opencode-plugin && $(PKG_INSTALL)
+	cd hooks && uv sync -p 3.13
+	-cd opencode-plugin && $(PKG_INSTALL) 2>/dev/null || true
+	@echo ""
+	@echo "Dependências instaladas! Agora rode: make setup"
+
+setup: install hooks-install build-static create-env
+	@echo ""
+	@echo "============================================"
+	@echo "  SocialForge instalado com sucesso!"
+	@echo "  Rode: make dev-tmux"
+	@echo "  Abra: http://localhost:8000"
+	@echo "============================================"
+
+create-env:
+	@test -f backend/.env || echo "SUMMARY_ENABLED=false" > backend/.env
+	@echo "Backend .env configurado"
 
 install-all: install hooks-install opencode-install
 	@echo "All components installed including hooks and OpenCode plugin"
@@ -93,12 +108,12 @@ hooks-logs-clear:
 	@echo "Hook logs cleared"
 
 hooks-debug-on:
-	@sed -i '' 's/CLAUDE_OFFICE_DEBUG=0/CLAUDE_OFFICE_DEBUG=1/' ~/.claude/claude-office-config.env 2>/dev/null || true
+	@sed -i 's/CLAUDE_OFFICE_DEBUG=0/CLAUDE_OFFICE_DEBUG=1/' ~/.claude/claude-office-config.env 2>/dev/null || true
 	@grep -q "CLAUDE_OFFICE_DEBUG" ~/.claude/claude-office-config.env || echo "CLAUDE_OFFICE_DEBUG=1" >> ~/.claude/claude-office-config.env
 	@echo "Hook debug logging enabled"
 
 hooks-debug-off:
-	@sed -i '' 's/CLAUDE_OFFICE_DEBUG=1/CLAUDE_OFFICE_DEBUG=0/' ~/.claude/claude-office-config.env 2>/dev/null || true
+	@sed -i 's/CLAUDE_OFFICE_DEBUG=1/CLAUDE_OFFICE_DEBUG=0/' ~/.claude/claude-office-config.env 2>/dev/null || true
 	@echo "Hook debug logging disabled"
 
 # OpenCode plugin management targets

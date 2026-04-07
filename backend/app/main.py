@@ -69,6 +69,39 @@ async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
     )
     init_squad_services(squad_loader, chat_router_instance, queue_manager, squad_engine)
 
+    # Mount static frontend if available (must happen after all other routes)
+    if STATIC_DIR.exists() and (STATIC_DIR / "index.html").exists():
+        next_dir = STATIC_DIR / "_next"
+        if next_dir.exists():
+            app.mount("/_next", StaticFiles(directory=next_dir), name="next_static")
+
+        @app.get("/")
+        async def serve_index() -> FileResponse:
+            """Serve the index page."""
+            return FileResponse(STATIC_DIR / "index.html")
+
+        @app.get("/{path:path}")
+        async def serve_frontend(path: str) -> FileResponse:
+            """Serve static frontend files with SPA fallback routing."""
+            file_path = STATIC_DIR / path
+            if file_path.is_file():
+                return FileResponse(file_path)
+
+            html_path = STATIC_DIR / f"{path}.html"
+            if html_path.is_file():
+                return FileResponse(html_path)
+
+            index_path = STATIC_DIR / "index.html"
+            if index_path.is_file():
+                return FileResponse(index_path)
+
+            not_found_path = STATIC_DIR / "404.html"
+            if not_found_path.is_file():
+                return FileResponse(not_found_path, status_code=404)
+            return FileResponse(index_path)
+
+        logging.getLogger(__name__).info("Static frontend mounted from %s", STATIC_DIR)
+
     yield
 
     await git_service.stop()
@@ -150,30 +183,3 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str) -> None:
         await manager.disconnect(websocket, session_id)
 
 
-if STATIC_DIR.exists():
-    app.mount("/_next", StaticFiles(directory=STATIC_DIR / "_next"), name="next_static")
-
-    @app.get("/{path:path}")
-    async def serve_frontend(path: str) -> FileResponse:
-        """Serve static frontend files with SPA fallback routing."""
-        file_path = STATIC_DIR / path
-        if file_path.is_file():
-            return FileResponse(file_path)
-
-        html_path = STATIC_DIR / f"{path}.html"
-        if html_path.is_file():
-            return FileResponse(html_path)
-
-        index_path = STATIC_DIR / "index.html"
-        if index_path.is_file():
-            return FileResponse(index_path)
-
-        not_found_path = STATIC_DIR / "404.html"
-        if not_found_path.is_file():
-            return FileResponse(not_found_path, status_code=404)
-        return FileResponse(index_path)
-
-    @app.get("/")
-    async def serve_index() -> FileResponse:
-        """Serve the index page."""
-        return FileResponse(STATIC_DIR / "index.html")

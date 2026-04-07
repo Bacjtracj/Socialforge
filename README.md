@@ -25,19 +25,39 @@ SocialForge e um time de agentes de IA que trabalham pra voce. Voce descreve o q
 
 ## Instalacao
 
+### Opcao 1: Auto-instalador (recomendado)
+
 ```bash
-# 1. Clone o repositorio
 git clone https://github.com/Bacjtracj/Socialforge.git
 cd Socialforge
-
-# 2. Instale tudo (backend + frontend + hooks)
-make install
-
-# 3. Pronto! Inicie o SocialForge:
-make dev-tmux
+python setup.py
 ```
 
-Abra no navegador: **http://localhost:3333**
+O script verifica tudo, instala dependencias, compila o frontend e configura os hooks. Funciona em Windows, Mac e Linux.
+
+### Opcao 2: Make (Linux/Mac)
+
+```bash
+git clone https://github.com/Bacjtracj/Socialforge.git
+cd Socialforge
+make setup
+```
+
+### Iniciar
+
+```bash
+# Com tmux (Linux/Mac):
+make dev-tmux
+
+# Ou com o auto-instalador:
+python setup.py --start
+
+# Ou manualmente (2 terminais):
+# Terminal 1: cd backend && uv run -p 3.13 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+# Terminal 2: cd frontend && npm run dev
+```
+
+Abra no navegador: **http://localhost:8000** (tudo numa porta so)
 
 Depois abra o Claude Code Desktop na pasta do projeto e comece a pedir!
 
