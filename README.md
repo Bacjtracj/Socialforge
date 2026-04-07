@@ -1,95 +1,152 @@
 # SocialForge
 
-**Seu time de IA para social media.** Agentes especializados em conteudo, diagnostico e gestao de clientes, tudo visual num escritorio pixel art.
-
-<!-- TODO: adicionar GIF animado do office com agentes trabalhando -->
+**Seu time de IA para social media.** 11 agentes especializados em conteudo, diagnostico e gestao de clientes, tudo visual num escritorio pixel art. Funciona 100% local com Claude Code Desktop, sem API key extra.
 
 ## O que e o SocialForge?
 
-SocialForge e um time de agentes de IA que trabalham pra voce. Voce descreve o que precisa, os agentes aparecem no escritorio e comecam a trabalhar. Voce acompanha tudo em tempo real e aprova cada etapa.
+SocialForge e um time de agentes de IA que trabalham pra voce. Voce descreve o que precisa no Claude Code Desktop, os agentes aparecem no escritorio pixel art e comecam a trabalhar. Voce acompanha tudo em tempo real e aprova cada etapa.
 
-### 3 Times Prontos
+**Zero configuracao de API.** O Claude Code Desktop que voce ja usa e o cerebro. Sem custo extra.
+
+### 3 Times, 11 Agentes
 
 | Time | O que faz | Agentes |
 |------|-----------|---------|
-| Fabrica de Conteudo | Calendario editorial, copy, roteiros de stories | Sol, Luna, Davi, Bia, Leo |
-| Diagnostico de Perfil | Analise de metricas, concorrentes, plano de acao | Sherlock, Nina, Max |
-| Maquina de Clientes | Precificacao, contratos, onboarding | Rafa, Clara, Dani |
+| Fabrica de Conteudo 🔥 | Calendario editorial, copy, roteiros de stories | Sol, Luna, Davi, Bia, Leo |
+| Diagnostico de Perfil 🔬 | Analise de metricas, concorrentes, plano de acao | Sherlock, Nina, Max |
+| Maquina de Clientes 💼 | Precificacao, contratos, onboarding | Rafa, Clara, Dani |
+
+## Requisitos
+
+- Claude Code Desktop (plano Pro ou Max)
+- Python 3.13+
+- Node.js 20+
+- Git
 
 ## Instalacao
 
-Voce precisa de:
-- Python 3.13+
-- Node.js 20+
-- Uma chave da API do Claude ([pegar aqui](https://console.anthropic.com/))
-
 ```bash
-git clone https://github.com/SEU-USUARIO/socialforge.git
-cd socialforge
+# 1. Clone o repositorio
+git clone https://github.com/Bacjtracj/Socialforge.git
+cd Socialforge
+
+# 2. Instale tudo (backend + frontend + hooks)
 make install
+
+# 3. Pronto! Inicie o SocialForge:
+make dev-tmux
 ```
+
+Abra no navegador: **http://localhost:3333**
+
+Depois abra o Claude Code Desktop na pasta do projeto e comece a pedir!
 
 ## Como usar
 
-1. Configure sua chave:
-```bash
-export ANTHROPIC_API_KEY="sua-chave-aqui"
+Abra o Claude Code Desktop e converse normalmente. As skills dos squads sao ativadas automaticamente:
+
+**Fabrica de Conteudo:**
+```
+Monta um calendario de Instagram pro meu cliente dentista, 5 posts por semana
 ```
 
-2. Inicie o SocialForge:
-```bash
-make dev
+**Diagnostico de Perfil:**
+```
+Faz um diagnostico completo do perfil @clinicaexemplo no Instagram
 ```
 
-3. Abra no navegador: **http://localhost:3333**
-
-4. Escolha um time ou descreva o que precisa no chat!
+**Maquina de Clientes:**
+```
+Quanto cobrar pra gerenciar Instagram + trafego pago de uma clinica de estetica?
+```
 
 ## Como funciona
 
-1. Voce escreve o que precisa (ex: "planejar conteudo do mes pro meu cliente dentista")
+```
+Voce (Claude Code Desktop)
+    |
+    v
+Skills ativadas automaticamente
+    |
+    v
+Cada agente roda como subagent (Task tool)
+    |
+    v
+Hooks capturam os eventos
+    |
+    v
+Backend recebe via HTTP POST
+    |
+    v
+Frontend mostra no escritorio pixel art via WebSocket
+```
+
+1. Voce escreve o que precisa
 2. O SocialForge identifica o time certo e inicia
 3. Os agentes aparecem no escritorio e comecam a trabalhar
 4. Em cada etapa importante, o sistema pausa e pede sua aprovacao
 5. Voce aprova, ajusta, e o time continua ate entregar tudo pronto
 
-## Deploy na VPS
+## Instalacao manual (sem make)
 
-Com Docker (um comando):
+Se o `make install` falhar:
+
 ```bash
-docker compose up -d
+# Backend
+cd backend
+pip install -e ".[dev]"
+cd ..
+
+# Frontend
+cd frontend
+npm install
+cd ..
+
+# Hooks
+cd hooks
+chmod +x install.sh
+./install.sh
+cd ..
 ```
 
-Sem Docker:
+## Rodar sem tmux
+
 ```bash
-export ANTHROPIC_API_KEY="sua-chave"
-make install
-make dev
+# Terminal 1 - Backend
+cd backend && make dev
+# Ou: uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+# Terminal 2 - Frontend
+cd frontend && npm run dev
 ```
-
-Acesse: `http://IP-DA-SUA-VPS:3333`
-
-## Variaveis de ambiente
-
-| Variavel | Obrigatoria | Descricao |
-|----------|-------------|-----------|
-| `ANTHROPIC_API_KEY` | Sim | Chave da API do Claude |
-| `SOCIALFORGE_PORT` | Nao | Porta do frontend (padrao: 3333) |
 
 ## Estrutura
 
 ```
 socialforge/
 ├── backend/           # API (FastAPI + Python)
-├── frontend/          # Interface (Next.js + PixiJS)
+├── frontend/          # Escritorio pixel art (Next.js + PixiJS)
 ├── socialforge/       # Definicoes dos squads e agentes
 │   └── squads/
-│       ├── fabrica-de-conteudo/
-│       ├── diagnostico-perfil/
-│       └── maquina-clientes/
-├── hooks/             # Integracao com Claude Code
-└── docker-compose.yml # Deploy com um comando
+│       ├── fabrica-de-conteudo/   # 5 agentes, 12 passos
+│       ├── diagnostico-perfil/    # 3 agentes, 10 passos
+│       └── maquina-clientes/      # 3 agentes, 9 passos
+├── .claude/skills/    # Skills que o Claude Code executa
+│   ├── fabrica-de-conteudo/
+│   ├── diagnostico-perfil/
+│   └── maquina-clientes/
+├── hooks/             # Ponte entre Claude Code e o visualizador
+└── Makefile           # Comandos de instalacao e execucao
 ```
+
+## Variaveis de ambiente (opcional)
+
+Nenhuma variavel e obrigatoria pro modo local! Opcionais:
+
+| Variavel | Descricao |
+|----------|-----------|
+| `SUMMARY_ENABLED` | `false` (padrao) — desativa resumos por IA |
+| `CLAUDE_OFFICE_DEBUG` | `1` para ativar logs dos hooks |
 
 ## Creditos
 

@@ -1,73 +1,68 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## Idioma
+- SEMPRE responda em português brasileiro em TODAS as interações.
+- Nunca use inglês a menos que o usuário peça explicitamente.
 
 ## Overview
 
-Claude Office Visualizer transforms Claude Code operations into a real-time pixel art office simulation. A "boss" character (main Claude agent) manages work, spawns "employee" agents (subagents), and orchestrates tasks visually.
+SocialForge é um time de agentes de IA para social media. Funciona 100% local com Claude Code Desktop, sem API key externa. Os agentes rodam como subagents (via Task tool) e aparecem no escritório pixel art em tempo real.
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for system architecture and component details.
+## Como funciona (modo local)
 
-## Commands
+1. O usuário pede algo no Claude Code Desktop (ex: "planejar conteúdo do mês pro dentista")
+2. A skill do squad é ativada automaticamente
+3. Cada agente roda como um subagent via Task tool
+4. Os hooks capturam os eventos e mandam pro backend
+5. O frontend mostra os agentes trabalhando no escritório pixel art
+
+**Não precisa de ANTHROPIC_API_KEY.** O Claude Code Desktop é o cérebro.
+
+## Skills dos Squads
+
+As skills estão em `.claude/skills/`. São ativadas automaticamente:
+
+- **fabrica-de-conteudo**: Calendário editorial, copies, roteiros de stories (5 agentes: Sol, Luna, Davi, Bia, Léo)
+- **diagnostico-perfil**: Análise de perfil, métricas, plano de ação (3 agentes: Sherlock, Nina, Max)
+- **maquina-clientes**: Precificação, contratos, onboarding (3 agentes: Rafa, Clara, Dani)
+
+## Comandos
 
 ```bash
-# Root
-make install       # Install all dependencies
-make dev-tmux      # Run in tmux (recommended) - backend :8000, frontend :3000
-make dev-tmux-kill # Kill tmux session
-make checkall      # Lint, typecheck, test all components
-make simulate      # Run event simulation
+# Instalar tudo
+make install
 
-# Component-specific (run from backend/ or frontend/)
-make dev           # Start dev server
-make checkall      # Check single component (faster)
-uv run pytest tests/test_file.py::test_name  # Single backend test
+# Rodar (recomendado - usa tmux)
+make dev-tmux
 
-# Hooks (cd hooks/)
-./install.sh       # Install hooks
-./uninstall.sh     # Remove hooks
+# Rodar sem tmux
+# Terminal 1: cd backend && make dev
+# Terminal 2: cd frontend && npm run dev
 
-# OpenCode Plugin (cd opencode-plugin/)
-bun run build      # Build plugin
-bun run typecheck  # Type check
+# Instalar hooks
+cd hooks && ./install.sh
+
+# Parar
+make dev-tmux-kill
 ```
 
-## Development Workflow
+## Comportamento
 
-**Preferred:** Use `make dev-tmux` - creates separate windows for backend/frontend.
-- Read logs: `tmux capture-pane -t claude-office:backend -p`
-- Switch windows: `Ctrl-b n` / `Ctrl-b p`
-- Hot reload enabled on both servers
+- Fale de forma natural, como no WhatsApp com um colega de profissão
+- Seja direto e prático, sem enrolação
+- Quando entregar um trabalho (calendário, diagnóstico, proposta), entregue COMPLETO
+- Não peça confirmação pra cada micro-etapa, só nos checkpoints definidos na skill
+- Use os nomes dos agentes (Sol, Luna, Davi...) pra criar subagents — isso faz eles aparecerem no escritório
 
-**Debugging:** Hook logs at `~/.claude/claude-office-hooks.log` (enable with `CLAUDE_OFFICE_DEBUG=1`)
+## Economia de Tokens
 
-## Project Skills
+- Respostas diretas, sem repetir o que o usuário disse
+- Sem saudações desnecessárias
+- Entregas sem narração prévia ("Vou criar..." — não, só crie)
+- Use o mínimo de tool calls possível
 
-- **/office-sprite** - Generate office furniture sprites
-- **/character-sprite** - Generate character sprite sheets
-- **/desk-accessory** - Generate tintable desk items
+## Debugging
 
-See `.claude/skills/*/SKILL.md` for details.
-
-## Workflow Guidelines
-
-**Commit after every batch of work:** Always commit after completing each logical unit.
-
-**Use subagents for validation:** Spawn a Bash subagent to run `make checkall` and commit:
-```
-"Run 'make checkall' from the project root. If successful, commit with message: '<message>'"
-```
-
-## Version Management
-
-**Keep all version locations in sync** when bumping versions:
-
-| Location | File |
-|----------|------|
-| Root package | `pyproject.toml` |
-| Backend | `backend/pyproject.toml` |
-| Hooks | `hooks/pyproject.toml` |
-| Hooks CLI | `hooks/src/claude_office_hooks/main.py` (`__version__`) |
-| Frontend package | `frontend/package.json` |
-| Frontend display | `frontend/src/app/page.tsx` (header badge) |
-| OpenCode plugin | `opencode-plugin/package.json` |
+- Logs dos hooks: `~/.claude/claude-office-hooks.log` (ativar com `CLAUDE_OFFICE_DEBUG=1`)
+- Backend: `http://localhost:8000/health`
+- Frontend: `http://localhost:3333`
